@@ -415,3 +415,103 @@ document.addEventListener('DOMContentLoaded', function() {
         closeModal.addEventListener('click', closeOrderModal);
     }
 });
+
+// Protection contre l'inspection et le clic droit
+function enableContentProtection() {
+    // Bloquer le clic droit
+    document.addEventListener('contextmenu', function(e) {
+        e.preventDefault();
+        showProtectionMessage('🛡️ Full Collection - Notre style est unique, comme nos chaussures.');
+    });
+    
+    // Bloquer les raccourcis clavier
+    document.addEventListener('keydown', function(e) {
+        // Liste des combinaisons à bloquer
+        const blockedShortcuts = [
+            e.key === 'F12',
+            e.ctrlKey && e.shiftKey && e.key === 'I',
+            e.ctrlKey && e.key === 'u',
+            e.ctrlKey && e.shiftKey && e.key === 'C',
+            e.ctrlKey && e.shiftKey && e.key === 'J'
+        ];
+        
+        if (blockedShortcuts.some(shortcut => shortcut)) {
+            e.preventDefault();
+            showProtectionMessage('🛡️ Full Collection - Notre style est unique, comme nos chaussures.');
+        }
+    });
+    
+    // Détection basique de l'ouverture des DevTools
+    let devToolsOpen = false;
+    const threshold = 160;
+    
+    setInterval(() => {
+        const widthThreshold = window.outerWidth - window.innerWidth > threshold;
+        const heightThreshold = window.outerHeight - window.innerHeight > threshold;
+        
+        if ((widthThreshold || heightThreshold) && !devToolsOpen) {
+            devToolsOpen = true;
+            showProtectionMessage('🛡️ L\'inspection du code est détectée. Merci de respecter notre propriété intellectuelle.');
+        }
+    }, 1000);
+}
+
+// Message de protection personnalisé
+function showProtectionMessage(message) {
+    // Créer un élément de notification stylisé
+    const notification = document.createElement('div');
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: linear-gradient(135deg, #667eea 0%, #0daaeeff 100%);
+        color: white;
+        padding: 15px 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        z-index: 10000;
+        font-family: 'Poppins', sans-serif;
+        font-size: 14px;
+        max-width: 300px;
+        animation: slideIn 0.3s ease;
+    `;
+    
+    notification.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <i class="fas fa-shield-alt"></i>
+            <span>${message}</span>
+        </div>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Supprimer après 3 secondes
+    setTimeout(() => {
+        notification.style.animation = 'slideOut 0.3s ease';
+        setTimeout(() => {
+            if (document.body.contains(notification)) {
+                document.body.removeChild(notification);
+            }
+        }, 300);
+    }, 3000);
+}
+
+// Ajouter les animations CSS
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes slideIn {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+    
+    @keyframes slideOut {
+        from { transform: translateX(0); opacity: 1; }
+        to { transform: translateX(100%); opacity: 0; }
+    }
+`;
+document.head.appendChild(style);
+
+// Initialiser la protection
+document.addEventListener('DOMContentLoaded', function() {
+    enableContentProtection();
+});
